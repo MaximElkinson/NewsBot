@@ -1,6 +1,7 @@
 import requests
-import discord
+from translate import Translator
 from data import *
+import discord
 from discord.ext import commands
 
 # TOKEN = 'BOT_TOKEN'
@@ -8,7 +9,11 @@ from discord.ext import commands
 
 class Find_News:
     def __init__(self):
-        pass
+        self.lang = 'ru'
+
+    def translate(self, text):
+        translator = Translator(to_lang=self.lang)
+        return translator.translate(text)
 
     def find(self):
         request = REQUEST
@@ -19,8 +24,9 @@ class Find_News:
             # Преобразуем ответ в json-объект
             json_response = response.json()
             toponym = json_response['appnews']['newsitems']
+            
             for i in toponym:
-                res.append(i['contents'])
+                res.append(self.translate(i['contents']))
             return res
 
 class RandomThings(commands.Cog):
