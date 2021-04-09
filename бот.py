@@ -73,7 +73,15 @@ class Bot_Commands(commands.Cog):
 
     @commands.command(name='help_bot')
     async def help(self, ctx):
-        help_text = ''
+        help_text = '''get_news - выводит новости по желаемой(ым) игре(ам).
+set_games <games_id> - устанавливает список желаемых игр,
+game_id - id игр, по которм вы хотели бы получать новости
+(id вводятся в одну строку БЕЗ каких-либо СИМВОЛОВ РАЗДЕЛЕНИЯ, нпример - "123")
+Доступные id игр:
+1 - Team Fortress 2
+2 - Dota 2
+3 - Portal 2
+4 - Counter-Strike: Global Offensive'''
         await ctx.send(help_text)
 
     @commands.command(name='get_news')
