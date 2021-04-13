@@ -3,22 +3,33 @@ from translate import Translator
 from data import *
 import discord
 from discord.ext import commands
+import asyncio
+
 
 # TOKEN = 'BOT_TOKEN'
 # REQUEST = 'URL'
+
+def loop_func(time_sec, func, *args, **kwargs):
+    for _ in range(1000_000_000):
+        await asyncio.sleep(time_sec)
+        func(*args, **kwargs)
 
 
 class NoGame(Exception):
     pass
 
+
 class NoGameInSpId(NoGame):
     pass
+
 
 class NoGameInDataBase(NoGame):
     pass
 
+
 class InputError(Exception):
     pass
+
 
 class UrlError(Exception):
     pass
@@ -146,7 +157,7 @@ class Find_News:
             else:
                 raise UrlError('Ошибка запроса')
         return self.res
-            
+
 
 class Bot_Commands(commands.Cog):
     def __init__(self, bot):
@@ -210,6 +221,7 @@ game_id - id игр, по которм вы хотели бы получать �
         # Команда для изменения типа вывода новостей
         await ctx.channel.purge(limit=1)
         self.find_news.set_type_of_return()
+
 
 bot = commands.Bot(command_prefix='!')
 bot.add_cog(Bot_Commands(bot))
