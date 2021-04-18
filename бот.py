@@ -9,11 +9,6 @@ import asyncio
 # TOKEN = 'BOT_TOKEN'
 # REQUEST = 'URL'
 
-def loop_func(time_sec, func, *args, **kwargs):
-    for _ in range(1000_000_000):
-        await asyncio.sleep(time_sec)
-        func(*args, **kwargs)
-
 
 class NoGame(Exception):
     pass
@@ -24,6 +19,9 @@ class NoGameInSpId(NoGame):
 
 
 class NoGameInDataBase(NoGame):
+    pass
+
+class GameInList(Exception):
     pass
 
 
@@ -48,20 +46,21 @@ class Find_News:
         # 2) Dota 2
         # 3) Portal 2
         # 4) Counter-Strike: Global Offensive
-        self.game_id = {'1': {'index': 440,
-                              'int_news': 1,
-                              'len_content': 300},
-                        '2': {'index': 570,
-                              'int_news': 1,
-                              'len_content': 300},
-                        '3': {'index': 620,
-                              'int_news': 1,
-                              'len_content': 300},
-                        '4': {'index': 730,
-                              'int_news': 1,
-                              'len_content': 300}}
+        self.game_id = {1: {'index': 440,
+                            'int_news': 1,
+                            'len_content': 300},
+                        2: {'index': 570,
+                            'int_news': 1,
+                            'len_content': 300},
+                        3: {'index': 620,
+                            'int_news': 1,
+                            'len_content': 300},
+                        4: {'index': 730,
+                            'int_news': 1,
+                            'len_content': 300}}
+        self.indexes = [440, 570, 620, 730]
         # Желаемые игры по умолчанию
-        self.game = '1'
+        self.game = [1]
         # Т
         self.type_with_url = True
 
@@ -83,6 +82,27 @@ class Find_News:
         else:
             return self.get_content()
 
+    def find_new_game(self, new_game):
+        name = new_game.lower()
+        # Выполняем запрос.
+        response = requests.get(ALL_GAME)
+        if response:
+            # Преобразуем ответ в json-объект
+            json_response = response.json()
+            all_games = json_response['applist']['apps']
+            for i in all_games:
+                if i['name'].lower() == name:
+                    if i['appid'] not in self.indexes:
+                        self.game_id[len(self.game_id) + 1] = {'index': i['appid'],
+                                                                'int_news': 1,
+                                                                'len_content': 300}
+                        return True
+                    else:
+                        raise GameInList()
+            raise NoGameInDataBase()
+        else:
+            raise UrlError('Ошибка запроса')
+
     def make_request(self):
         # Функция создания запросов
         for i in self.game:
@@ -99,7 +119,7 @@ class Find_News:
         # Функция изменения желаемых игр
         # Чистим стек и заполням его
         del self.reguests[:]
-        self.game = new_games
+        self.game = list(map(lambda s: int(s), new_games))
 
     def set_int_news(self, games, new_int):
         if games == 'all':
@@ -111,7 +131,6 @@ class Find_News:
                     self.game_id[i]["int_news"] = new_int
                 else:
                     raise NoGameInSpId('Игра отсутстует в списке игр')
-        print(self.game_id)
 
     def set_len_content(self, games, new_len_content):
         if games == 'all':
@@ -187,12 +206,12 @@ game_id - id игр, по которм вы хотели бы получать �
             await ctx.send('Что-то пошло не так')
 
     @commands.command(name='set_games')
-    async def set_games(self, ctx, new_games):
+    async def set_games(self, ctx, *new_games):
         # Команда для установки желаемых игр
         await ctx.channel.purge(limit=1)
         # Проверка на провильность ввода
         try:
-            self.find_news.set_games(str(int(new_games)))
+            self.find_news.set_games(new_games)
         except Exception:
             await ctx.send('Неверный ввод')
         else:
@@ -222,6 +241,32 @@ game_id - id игр, по которм вы хотели бы получать �
         await ctx.channel.purge(limit=1)
         self.find_news.set_type_of_return()
 
+
+    @commands.command(name='add_game')
+    async def add_game(self, ctx, *new_game):
+        # Команда для установки желаемых игр
+        await ctx.channel.purge(limit=1)
+        new_game = ' '.join(list(new_game))
+        # Проверка на провильность ввода
+        try:
+            res = self.find_news.find_new_game(new_game)
+            if res:
+                await ctx.send('Игра добавлена')
+            else:
+                await ctx.send('Игра не найдена')
+        except NoGameInDataBase:
+            await ctx.send('Данной игры нет в базе данных')
+        except GameInList():
+            await ctx.send('Данная ишра уже есть в списке игр')
+        except UrlError():
+            await ctx.send('Что-то пошло не так')
+            
+
+    @commands.command(name='set_time')
+    async def loop_func(time_sec, func, *args, **kwargs):
+        for _ in range(1000_000_000):
+            await asyncio.sleep(time_sec)
+            func(*args, **kwargs)
 
 bot = commands.Bot(command_prefix='!')
 bot.add_cog(Bot_Commands(bot))
