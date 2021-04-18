@@ -47,15 +47,19 @@ class Find_News:
         # 3) Portal 2
         # 4) Counter-Strike: Global Offensive
         self.game_id = {1: {'index': 440,
+                            'name': 'Team Fortress 2',
                             'int_news': 1,
                             'len_content': 300},
                         2: {'index': 570,
+                            'name': 'Dota 2',
                             'int_news': 1,
                             'len_content': 300},
                         3: {'index': 620,
+                            'name': 'Portal 2',
                             'int_news': 1,
                             'len_content': 300},
                         4: {'index': 730,
+                            'name': 'Counter-Strike: Global Offensive',
                             'int_news': 1,
                             'len_content': 300}}
         self.indexes = [440, 570, 620, 730]
@@ -94,8 +98,9 @@ class Find_News:
                 if i['name'].lower() == name:
                     if i['appid'] not in self.indexes:
                         self.game_id[len(self.game_id) + 1] = {'index': i['appid'],
-                                                                'int_news': 1,
-                                                                'len_content': 300}
+                                                               'name': i['name'],
+                                                               'int_news': 1,
+                                                               'len_content': 300}
                         return True
                     else:
                         raise GameInList()
@@ -114,6 +119,12 @@ class Find_News:
                 self.reguests.append(REQUEST + f'appid={a}&count={b}&maxlength={c}&enddate=33174810590&format=json')
             else:
                 raise NoGameInSpId('Игра отсутстует в списке игр')
+
+    def get_indexes(self):
+        sp = []
+        for i in self.game_id:
+            sp.append([self.game_id[i]['name'], i])
+        return sp
 
     def set_games(self, new_games):
         # Функция изменения желаемых игр
@@ -189,11 +200,9 @@ class Bot_Commands(commands.Cog):
 set_games <games_id> - устанавливает список желаемых игр,
 game_id - id игр, по которм вы хотели бы получать новости
 (id вводятся в одну строку БЕЗ каких-либо СИМВОЛОВ РАЗДЕЛЕНИЯ, нпример - "123")
-Доступные id игр:
-1 - Team Fortress 2
-2 - Dota 2
-3 - Portal 2
-4 - Counter-Strike: Global Offensive'''
+Доступные id игр:'''
+        for i in self.find_news.get_indexes():
+            help_text += f'\n{i[0]} - {i[1]}'
         await ctx.send(help_text)
 
     @commands.command(name='get_news')
