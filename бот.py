@@ -98,9 +98,10 @@ class Find_News:
                 if i['name'].lower() == name:
                     if i['appid'] not in self.indexes:
                         self.game_id[len(self.game_id) + 1] = {'index': i['appid'],
-                                                               'name': i['name'],
-                                                               'int_news': 1,
-                                                               'len_content': 300}
+                                                                'name': i['name'],
+                                                                'int_news': 1,
+                                                                'len_content': 300}
+                        self.game.append(len(self.game_id))
                         return True
                     else:
                         raise GameInList()
