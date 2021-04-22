@@ -265,7 +265,8 @@ class Bot_Commands(commands.Cog):
         self.bot = bot
         self.find_news = Find_News()
 
-    @commands.command(name='help_bot')
+    @commands.command(name='help')
+    @commands.command(name='h')
     async def help(self, ctx):
         if self.clean:
             await ctx.channel.purge(limit=1)
@@ -276,6 +277,7 @@ game_id - id игр, по которм вы хотели бы получать �
         await ctx.send(help_text)
 
     @commands.command(name='get_indexes')
+    @commands.command(name='gi')
     async def get_indexes(self, ctx):
         if self.clean:
             await ctx.channel.purge(limit=1)
@@ -320,8 +322,8 @@ game_id - id игр, по которм вы хотели бы получать �
         except NoGameInSpId:
             await ctx.send('Что-то пошло не так')
 
-    @commands.command(name='set_len_content')
-    @commands.command(name='slc')
+    @commands.command(name='set_content_length')
+    @commands.command(name='scl')
     async def set_len_content(self, ctx, len_content, games='all'):
         # Команда для установки длины новости(ей)
         if self.clean:
