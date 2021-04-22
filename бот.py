@@ -341,8 +341,8 @@ game_id - id игр, по которм вы хотели бы получать �
             await ctx.channel.purge(limit=1)
         self.find_news.set_type_of_return()
 
-    @commands.command(name='add')
-    @commands.command(name='a')
+    @commands.command(name='add_game')
+    @commands.command(name='ag')
     async def add(self, ctx, *new_game):
         # Команда для установки желаемых игр
         if self.clean:
