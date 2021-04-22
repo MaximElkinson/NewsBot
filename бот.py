@@ -89,7 +89,7 @@ class Find_News:
 
     def get_news(self):
         # функция получения новостей
-        # Приверка типа вывода новостей
+        # Проверка типа вывода новостей
         if self.type_with_url:
             # Получения заголовков и ссылок на новости
             return self.get_title_with_url()
@@ -99,7 +99,7 @@ class Find_News:
 
     def find_new_game(self, new_game):
         # функция поиска новых игр
-        # Перевод названия игры в нижни регистр
+        # Перевод названия игры в нижний регистр
         name = new_game.lower()
         # Выполнение запроса
         response = requests.get(ALL_GAME)
@@ -155,7 +155,7 @@ class Find_News:
             self.lang = 'en'
 
     def get_indexes(self):
-        # Функция возврата списка индексов игр
+        # Функция возврата списка индексов игр,
         # под которыми они хранятся в программе
         # Создаём пустой список
         sp = []
@@ -175,7 +175,7 @@ class Find_News:
         # Функция установки количества новостей
         # по конкретной игре(ам)
         # Проверка на редактирование количества новостей
-        # у кождой игры
+        # у каждой игры
         if games == 'all':
             # Изменение количества новостей
             # у каждой игры
@@ -183,7 +183,7 @@ class Find_News:
                 self.game_id[i - 1]["int_news"] = new_int
         else:
             for i in games:
-                # Проверка на наличие иры
+                # Проверка на наличие игры
                 if i <= len(self.game_id):
                     # Изменение количества новостей
                     self.game_id[i - 1]["int_news"] = new_int
@@ -192,20 +192,20 @@ class Find_News:
                     raise NoGameInSpId('Игра отсутстует в списке игр')
 
     def set_len_content(self, games, new_len_content):
-        # Функция установки длинны новостей
+        # Функция установки длины новостей
         # по конкретной игре(ам)
-        # Проверка на редактирование длинны новостей
+        # Проверка на редактирование длины новостей
         # у кождой игры
         if games == 'all':
-            # Изменение длинны новостей
+            # Изменение длины новостей
             # у каждой игры
             for i in self.game_id:
                 i["len_content"] = new_len_content
         else:
             for i in games:
-                # Проверка на наличие иры
+                # Проверка на наличие игры
                 if i <= len(self.game_id):
-                    # Изменение длинны новостей
+                    # Изменение длины новостей
                     self.game_id[i - 1]["len_content"] = new_len_content
                 else:
                     # Вызов ошибки
@@ -285,6 +285,7 @@ game_id - id игр, по которм вы хотели бы получать �
         await ctx.send(text)
 
     @commands.command(name='get_news')
+    @commands.command(name='gn')
     async def get_news(self, ctx):
         # Команда для получения новостей
         if self.clean:
@@ -295,11 +296,12 @@ game_id - id игр, по которм вы хотели бы получать �
             await ctx.send('Что-то пошло не так')
 
     @commands.command(name='set_games')
+    @commands.command(name='sg')
     async def set_games(self, ctx, *new_games):
         # Команда для установки желаемых игр
         if self.clean:
             await ctx.channel.purge(limit=1)
-        # Проверка на провильность ввода
+        # Проверка на правильность ввода
         try:
             self.find_news.set_games(new_games)
         except Exception:
@@ -308,6 +310,7 @@ game_id - id игр, по которм вы хотели бы получать �
             await ctx.send('Изменения внесены')
 
     @commands.command(name='set_int_news')
+    @commands.command(name='sin')
     async def set_int_news(self, ctx, int_news, games='all'):
         # Команда для установки кол-ва новостей
         if self.clean:
@@ -318,8 +321,9 @@ game_id - id игр, по которм вы хотели бы получать �
             await ctx.send('Что-то пошло не так')
 
     @commands.command(name='set_len_content')
+    @commands.command(name='slc')
     async def set_len_content(self, ctx, len_content, games='all'):
-        # Команда для установки длинны новости(ей)
+        # Команда для установки длины новости(ей)
         if self.clean:
             await ctx.channel.purge(limit=1)
         try:
@@ -328,6 +332,7 @@ game_id - id игр, по которм вы хотели бы получать �
             await ctx.send('Что-то пошло не так')
 
     @commands.command(name='set_type_of_return')
+    @commands.command(name='stor')
     async def set_type_of_return(self, ctx):
         # Команда для изменения типа вывода новостей
         if self.clean:
@@ -335,12 +340,13 @@ game_id - id игр, по которм вы хотели бы получать �
         self.find_news.set_type_of_return()
 
     @commands.command(name='add')
+    @commands.command(name='a')
     async def add(self, ctx, *new_game):
         # Команда для установки желаемых игр
         if self.clean:
             await ctx.channel.purge(limit=1)
         new_game = ' '.join(list(new_game))
-        # Проверка на провильность ввода
+        # Проверка на правильность ввода
         try:
             res = self.find_news.find_new_game(new_game)
             if res:
@@ -355,6 +361,7 @@ game_id - id игр, по которм вы хотели бы получать �
             await ctx.send('Что-то пошло не так')
 
     @commands.command(name='set_lang')
+    @commands.command(name='sl')
     async def set_lang(self, ctx):
         # Команда для установки желаемых игр
         if self.clean:
@@ -364,6 +371,7 @@ game_id - id игр, по которм вы хотели бы получать �
             
 
     @commands.command(name='set_timer')
+    @commands.command(name='st')
     async def set_timer(self, ctx, time_day):
         if self.clean:
             await ctx.channel.purge(limit=1)
@@ -379,6 +387,7 @@ game_id - id игр, по которм вы хотели бы получать �
 
 
     @commands.command(name='stop_timer')
+    @commands.command(name='stt')
     async def stop_timer(self, ctx):
         if self.clean:
             await ctx.channel.purge(limit=1)
@@ -389,6 +398,7 @@ game_id - id игр, по которм вы хотели бы получать �
             await ctx.send('Автооповещение не установлено')
 
     @commands.command(name='clean')
+    @commands.command(name='c')
     async def clean(self, ctx):
         if self.clean:
             await ctx.channel.purge(limit=1)
@@ -400,6 +410,7 @@ game_id - id игр, по которм вы хотели бы получать �
             await ctx.send('Автоочистка включена')
 
     @commands.command(name='delete')
+    @commands.command(name='d')
     async def delete(self, ctx, game):
         if self.clean:
             await ctx.channel.purge(limit=1)
