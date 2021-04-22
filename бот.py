@@ -362,7 +362,7 @@ game_id - id игр, по которм вы хотели бы получать �
         except UrlError():
             await ctx.send('Что-то пошло не так')
 
-    @commands.command(name='set_lang')
+    @commands.command(name='set_language')
     @commands.command(name='sl')
     async def set_lang(self, ctx):
         # Команда для установки желаемых игр
@@ -399,8 +399,8 @@ game_id - id игр, по которм вы хотели бы получать �
         else:
             await ctx.send('Автооповещение не установлено')
 
-    @commands.command(name='clean')
-    @commands.command(name='c')
+    @commands.command(name='toggle_cleaning')
+    @commands.command(name='tc')
     async def clean(self, ctx):
         if self.clean:
             await ctx.channel.purge(limit=1)
@@ -411,8 +411,8 @@ game_id - id игр, по которм вы хотели бы получать �
             self.clean = True
             await ctx.send('Автоочистка включена')
 
-    @commands.command(name='delete')
-    @commands.command(name='d')
+    @commands.command(name='delete_game')
+    @commands.command(name='dg')
     async def delete(self, ctx, game):
         if self.clean:
             await ctx.channel.purge(limit=1)
