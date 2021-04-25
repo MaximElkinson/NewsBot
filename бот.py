@@ -5,11 +5,6 @@ import discord
 from discord.ext import commands
 import asyncio
 
-
-async def loop_func(time_sec, func, *args, **kwargs):
-        for _ in range(1000_000_000):
-            func(*args, **kwargs)
-            await asyncio.sleep(time_sec)
             
 # _____ИСКЛЮЧЕНИЯ_____
 
@@ -26,11 +21,6 @@ class NoGameInDataBase(NoGame):
 
 class GameInList(Exception):
     pass
-
-
-class InputError(Exception):
-    pass
-
 
 class UrlError(Exception):
     pass
@@ -69,7 +59,7 @@ class Find_News:
         # Список индексов игр
         self.indexes = [440, 570, 620, 730]
         # Желаемые игры по умолчанию
-        self.game = [0]
+        self.game = [1]
         # Тип вывода новостей(заголовок и ссылка)
         self.type_with_url = True
 
@@ -78,7 +68,9 @@ class Find_News:
         # на установленный язык
         if self.lang == 'ru':
             translator = Translator(to_lang='ru')
-        return translator.translate(text)
+            return translator.translate(text)
+        else:
+            return text
 
     def set_type_of_return(self):
         # функция смены типа вывода новостей
@@ -89,6 +81,9 @@ class Find_News:
 
     def get_news(self):
         # функция получения новостей
+        del self.res[:]
+        del self.reguests[:]
+        print(self.game)
         # Приверка типа вывода новостей
         if self.type_with_url:
             # Получения заголовков и ссылок на новости
@@ -180,7 +175,7 @@ class Find_News:
             # Изменение количества новостей
             # у каждой игры
             for i in self.game_id:
-                self.game_id[i - 1]["int_news"] = new_int
+                i["int_news"] = new_int
         else:
             for i in games:
                 # Проверка на наличие иры
@@ -215,7 +210,6 @@ class Find_News:
     def get_content(self):
         # Функция для получения частей содержаний новостей
         self.make_request()
-        del self.res[:]
         for i in self.reguests:
             # Выполняем запрос.
             response = requests.get(i)
@@ -232,7 +226,6 @@ class Find_News:
     def get_title_with_url(self):
         # Функция для получения заголовков и ссылок на новости
         self.make_request()
-        del self.res[:]
         for i in self.reguests:
             # Выполняем запрос.
             response = requests.get(i)
@@ -241,18 +234,20 @@ class Find_News:
                 json_response = response.json()
                 toponym = json_response['appnews']['newsitems']
                 for i in toponym:
-                    self.res += [i['title'], i['url']]
+                    self.res += [self.translate(i['title']), i['url']]
             else:
                 raise UrlError('Ошибка запроса')
         return self.res
 
     def delete_game(self, game):
+        print(self.game)
         del self.game_id[game - 1]
+        del self.game[game - 1]
         for i in range(len(self.game)):
-            if self.game[i] == game - 1:
-                del self.game[i]
-            elif self.game[i] > game - 1:
+            print(i)
+            if i >= game - 1:
                 self.game[i] -= 1
+        print(self.game)
 
 # _____КОМАНДЫ_____
 
@@ -269,10 +264,32 @@ class Bot_Commands(commands.Cog):
     async def help(self, ctx):
         if self.clean:
             await ctx.channel.purge(limit=1)
-        help_text = '''get_news - выводит новости по желаемой(ым) игре(ам).
-set_games <games_id> - устанавливает список желаемых игр,
-game_id - id игр, по которм вы хотели бы получать новости
-(id вводятся в одну строку БЕЗ каких-либо СИМВОЛОВ РАЗДЕЛЕНИЯ, нпример - "123")'''
+        help_text = '''Для обозначения команды используйте символ "!"
+get_news - выводит новости по желаемой(ым) игре(ам).
+
+get_indexes - выдаёт индексы доступных игр.
+
+set_int_news <новое количество новостей> <индексы игр, записанные через пробел> - устанавливает количество новостей по некоторым играм
+(при не указании индексов игр, изменения коснутся всех игр).
+
+set_len_content <новая длинна новостей> <индексы игр, записанные через пробел> - устанавливает длинну новостей по некоторым играм
+(при не указании индексов игр, изменения коснутся всех игр).
+
+set_type_of_return - меняет тип вывода новостей(Заголовок и ссылка/Текст новости).
+
+add <название новой игры> - добавляет новую игру.
+
+set_lang - меняет язык, на котором выводятся новости(русский/английский).
+
+set_timer <дни> - включает автооповещение.
+
+stop_timer - отключает автооповещение
+
+clean - Включает и отключает автоудаление сообщений-команд
+
+delete <индекс игры> - удаляет выбранную игру
+
+set_games <индексы игр, записанные через пробел> - устанавливает список желаемых игр.'''
         await ctx.send(help_text)
 
     @commands.command(name='get_indexes')
@@ -316,6 +333,8 @@ game_id - id игр, по которм вы хотели бы получать �
             self.find_news.set_int_news(games, int(int_news))
         except NoGameInSpId:
             await ctx.send('Что-то пошло не так')
+        else:
+            await ctx.send('Изменения внесены')
 
     @commands.command(name='set_len_content')
     async def set_len_content(self, ctx, len_content, games='all'):
@@ -326,6 +345,8 @@ game_id - id игр, по которм вы хотели бы получать �
             self.find_news.set_len_content(games, int(len_content))
         except NoGameInSpId:
             await ctx.send('Что-то пошло не так')
+        else:
+            await ctx.send('Изменения внесены')
 
     @commands.command(name='set_type_of_return')
     async def set_type_of_return(self, ctx):
@@ -333,6 +354,7 @@ game_id - id игр, по которм вы хотели бы получать �
         if self.clean:
             await ctx.channel.purge(limit=1)
         self.find_news.set_type_of_return()
+        await ctx.send('Изменения внесены')
 
     @commands.command(name='add')
     async def add(self, ctx, *new_game):
@@ -350,21 +372,21 @@ game_id - id игр, по которм вы хотели бы получать �
         except NoGameInDataBase:
             await ctx.send('Данной игры нет в базе данных')
         except GameInList():
-            await ctx.send('Данная ишра уже есть в списке игр')
+            await ctx.send('Данная игра уже есть в списке игр')
         except UrlError():
             await ctx.send('Что-то пошло не так')
 
     @commands.command(name='set_lang')
     async def set_lang(self, ctx):
-        # Команда для установки желаемых игр
+        # Команда для смены языка
         if self.clean:
             await ctx.channel.purge(limit=1)
         self.find_news.set_lang()
         await ctx.send('Язык изменён')
-            
 
     @commands.command(name='set_timer')
     async def set_timer(self, ctx, time_day):
+        # Команда для установки автооповещения
         if self.clean:
             await ctx.channel.purge(limit=1)
         self.timer = True
@@ -377,9 +399,9 @@ game_id - id игр, по которм вы хотели бы получать �
                 else:
                     await asyncio.sleep(int(time_day) * 86400)
 
-
     @commands.command(name='stop_timer')
     async def stop_timer(self, ctx):
+        # Команда для остановки автооповещения
         if self.clean:
             await ctx.channel.purge(limit=1)
         if self.timer:
@@ -390,6 +412,7 @@ game_id - id игр, по которм вы хотели бы получать �
 
     @commands.command(name='clean')
     async def clean(self, ctx):
+        # Команда для остановки автооповещения
         if self.clean:
             await ctx.channel.purge(limit=1)
         if self.clean:
@@ -401,9 +424,11 @@ game_id - id игр, по которм вы хотели бы получать �
 
     @commands.command(name='delete')
     async def delete(self, ctx, game):
+        # Команда для удаления одгой из игр
         if self.clean:
             await ctx.channel.purge(limit=1)
         self.find_news.delete_game(int(game))
+        await ctx.send('Игра удалена')
     
 
 bot = commands.Bot(command_prefix='!')
