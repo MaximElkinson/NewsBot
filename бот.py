@@ -6,10 +6,6 @@ from discord.ext import commands
 import asyncio
 
 
-async def loop_func(time_sec, func, *args, **kwargs):
-        for _ in range(1000_000_000):
-            func(*args, **kwargs)
-            await asyncio.sleep(time_sec)
             
 # _____ИСКЛЮЧЕНИЯ_____
 
@@ -93,8 +89,6 @@ class Find_News:
         # функция получения новостей
         del self.res[:]
         del self.reguests[:]
-        print(self.game)
-        # Приверка типа вывода новостей
         # Проверка типа вывода новостей
         if self.type_with_url:
             # Получения заголовков и ссылок на новости
@@ -144,7 +138,6 @@ class Find_News:
         for i in self.game:
             if i <= len(self.game_id):
                 # Помещение запроса по конкретной игре в стек
-                print(self.game_id[i - 1])
                 a = self.game_id[i - 1]["index"]
                 b = self.game_id[i - 1]["int_news"]
                 c = self.game_id[i - 1]["len_content"]
@@ -216,7 +209,6 @@ class Find_News:
                 else:
                     # Вызов ошибки
                     raise NoGameInSpId('Игра отсутстует в списке игр')
-        print(self.game_id)
 
     def get_content(self):
         # Функция для получения частей содержаний новостей
